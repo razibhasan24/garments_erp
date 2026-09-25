@@ -1,25 +1,33 @@
 <?php
-
+// database/seeders/DatabaseSeeder.php
 namespace Database\Seeders;
 
+use App\Models\Factory;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call(RolePermissionSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        $factory = Factory::firstOrCreate(
+            ['code' => 'FCT-001'],
+            ['name' => 'Demo Garments Ltd.', 'address' => 'Ashulia, Dhaka', 'is_active' => true]
+        );
+
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@garments-erp.test'],
+            [
+                'name' => 'Super Admin',
+                'password' => bcrypt('password'),
+                'factory_id' => $factory->id,
+                'is_active' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        $admin->assignRole('Super Admin');
     }
 }
